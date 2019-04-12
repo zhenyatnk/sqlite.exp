@@ -1,0 +1,191 @@
+#
+#  Base file for building with cmake
+#
+
+# Set type component (EXECUTABLE or LIBRARY).
+set(${_project_name}_${_component_name}_component_type "${_component_type}"
+    CACHE STRING "Type of ${_project_name}_${_component_type} module to be created (EXECUTABLE|LIBRARY).")
+
+# Set type library (STATIC or SHARED or empty).
+set(${_project_name}_${_component_name}_library_type "${_library_type}"
+    CACHE STRING "Type of ${_project_name}_${_component_name} library to be created (STATIC|SHARED).")
+
+# Set a root directory for include files.
+set(${_project_name}_${_component_name}_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${_target_includes_directory}
+    CACHE INTERNAL "${_project_name}_${_component_name} headers directory.")
+
+# Set a root directory for include files.
+set(${_project_name}_${_component_name}_PRIVATE_INCLUDE_DIR ${_private_includes_directory}
+    CACHE INTERNAL "${_project_name}_${_component_name} private headers directory.")
+
+# Set a directory for version file.
+set(${_project_name}_${_component_name}_PRIVATE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/../binary_include
+    CACHE INTERNAL "${_project_name}_${_component_name} private binary headers directory.")
+
+# Put a list of header files into the cache.
+set(${_project_name}_${_component_name}_HEADERS ${_headers}
+    CACHE INTERNAL "${_project_name}_${_component_name} headers.")
+
+# Put a list of private headers into the cache.
+set(${_project_name}_${_component_name}_PRIVATE_HEADERS ${_private_headers}
+    CACHE INTERNAL "${_project_name}_${_component_name} private headers.")
+
+# Put a list of sources into the cache.
+set(${_project_name}_${_component_name}_SOURCES ${_sources}
+    CACHE INTERNAL "${_project_name}_${_component_name} sources")
+
+# Put a list of private sources into the cache.
+set(${_project_name}_${_component_name}_PRIVATE_SOURCES ${_private_sources}
+    CACHE INTERNAL "${_project_name}_${_component_name} sources")
+
+set(${_project_name}_${_component_name}_VERSION ${${_project_name}_${_component_name}_PRIVATE_BINARY_DIR}/${_project_name}/version/version.hpp
+    CACHE INTERNAL "${_project_name}_${_component_name} versions.")
+
+set(${_project_name}_${_component_name}_TARGET_LIBRARIES ${_target_libraries}
+    CACHE INTERNAL "${_project_name}_${_component_name} target libraries.")
+
+# Disable compilation for private sources.
+set_source_files_properties(${${_project_name}_${_component_name}_PRIVATE_SOURCES}
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+
+# Adds custom definitions to the compiler command line.
+add_definitions(${_definitions})
+
+#
+# Add a library or an executable to the project using all source files.
+#
+if("${${_project_name}_${_component_name}_component_type}" STREQUAL "library")
+    add_library(${_project_name}_${_component_name}
+                ${${_project_name}_${_component_name}_library_type}
+                ${${_project_name}_${_component_name}_HEADERS}
+                ${${_project_name}_${_component_name}_PRIVATE_HEADERS}
+                ${${_project_name}_${_component_name}_SOURCES}
+                ${${_project_name}_${_component_name}_PRIVATE_SOURCES}
+                ${${_project_name}_${_component_name}_VERSION})
+
+
+    #
+    # Install rules
+    #
+
+    if((NOT "${${_project_name}_${_component_name}_library_type}" STREQUAL "STATIC" AND ${BUILD_SHARED_LIBS}) OR "${${_project_name}_${_component_name}_library_type}" STREQUAL "SHARED")
+        install(TARGETS ${_project_name}_${_component_name}
+        DESTINATION bin)
+    else()
+        install(TARGETS ${_project_name}_${_component_name}
+          DESTINATION lib)
+    endif()
+
+    install(DIRECTORY ${${_project_name}_${_component_name}_INCLUDE_DIR}/
+      DESTINATION include)
+    install(DIRECTORY ${${_project_name}_${_component_name}_PRIVATE_BINARY_DIR}/
+      DESTINATION include)
+
+elseif("${${_project_name}_${_component_name}_component_type}" STREQUAL "executable")
+    add_executable(${_project_name}_${_component_name}
+                ${${_project_name}_${_component_name}_HEADERS}
+                ${${_project_name}_${_component_name}_PRIVATE_HEADERS}
+                ${${_project_name}_${_component_name}_SOURCES}
+                ${${_project_name}_${_component_name}_PRIVATE_SOURCES}
+                ${${_project_name}_${_component_name}_VERSION})
+
+    #
+    # Install rules
+    #
+    install(TARGETS ${_project_name}_${_component_name}
+      DESTINATION bin)
+else()
+    message(ERROR_FATAL "Unknown component type for ${_project_name}")
+endif()
+
+#
+# Switch exports to the appropriate state STATIC or SHARED.
+#
+if((NOT "${${_project_name}_${_component_name}_library_type}" STREQUAL "STATIC" AND ${BUILD_SHARED_LIBS}) OR "${${_project_name}_${_component_name}_library_type}" STREQUAL "SHARED")
+    add_definitions(-D${_project_name}_${_component_name}_SHARED_DEFINE)
+endif()
+
+if(${BUILD_SHARED_LIBS})
+    add_definitions(-DGTEST_LINKED_AS_SHARED_LIBRARY=1)
+endif()
+
+
+# Add include directories to a target.
+target_include_directories(${_project_name}_${_component_name}
+                        PUBLIC ${${_project_name}_${_component_name}_INCLUDE_DIR}
+                        PRIVATE ${${_project_name}_${_component_name}_PRIVATE_INCLUDE_DIR}
+                        PUBLIC ${${_project_name}_${_component_name}_PRIVATE_BINARY_DIR})
+
+#
+# Link a target to given libraries.
+#
+target_link_libraries(
+    ${_project_name}_${_component_name}
+    ${${_project_name}_${_component_name}_TARGET_LIBRARIES}
+    )
+
+#
+# Put a list of test sources into the cache.
+#
+set(${_project_name}_${_component_name}_TESTS ${_tests}
+    CACHE INTERNAL "${_project_name}_${_component_name} tests")
+
+#
+# Add test module if tests sources are specified and skip this step overwise.
+#
+if(${_project_name}_${_component_name}_TESTS)
+
+    #
+    # Add an test executable to the project using the specified source files.
+    #
+    add_executable(
+        ${_project_name}_${_component_name}_test
+        ${${_project_name}_${_component_name}_TESTS})
+
+    #
+    # Link a test target to given libraries.
+    #
+    target_link_libraries(
+        ${_project_name}_${_component_name}_test
+        ${CMAKE_THREAD_LIBS_INIT}
+        ${_project_name}_${_component_name}
+        gmock
+        gtest)
+
+    add_test(NAME ${_project_name}_${_component_name}
+             COMMAND ${_project_name}_${_component_name}_test
+                --gtest_output=xml:${_project_name}_${_component_name}_test.xml})
+
+else()
+    message(STATUS "Skipping test module generation for ${_project_name}_${_component_name}")
+endif()
+
+function(layout_source_groups)
+    set(_options)
+    set(_oneValueArgs)
+    set(_multiValueArgs ITEMS)
+    cmake_parse_arguments(_args "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN})
+
+    # Process items
+    foreach(_item ${_args_ITEMS})
+        foreach(_file ${_item})
+            get_filename_component(_group "${_file}" PATH)
+            string(REPLACE "/" "\\" _group "${_group}")
+            source_group("${_group}" FILES "${_file}")
+        endforeach()
+    endforeach()
+
+endfunction()
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/binary)
+    file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/binary/" DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+endif()
+
+# Layout source files in IDE project according to the directory structure.
+layout_source_groups(ITEMS
+                        ${${_project_name}_${_component_name}_HEADERS}
+                        ${${_project_name}_${_component_name}_PRIVATE_HEADERS}
+                        ${${_project_name}_${_component_name}_SOURCES}
+                        ${${_project_name}_${_component_name}_PRIVATE_SOURCES}
+                        ${${_project_name}_${_component_name}_TESTS})

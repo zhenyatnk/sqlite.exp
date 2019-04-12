@@ -1,0 +1,5 @@
+#pragma once
+
+#define ${_pnu}_VERSION_MAJOR ${${_project_name}_major}
+#define ${_pnu}_VERSION_MINOR ${${_project_name}_minor}
+#define ${_pnu}_VERSION_PATCH ${${_project_name}_patch}

@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+ 
+project(${_project_name}_download NONE)
+ 
+include(ExternalProject)
+
+ExternalProject_Add(${_project_name}
+  GIT_REPOSITORY    ${${_project_name}_repo}
+  GIT_TAG           ${${_project_name}_tag}
+  SOURCE_DIR        "${${_project_name}_main_dir}/${${_project_name}_source_dir}"
+  BINARY_DIR        "${${_project_name}_main_dir}/${${_project_name}_build_dir}"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
+)

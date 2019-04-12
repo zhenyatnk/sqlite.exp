@@ -1,0 +1,28 @@
+language: cpp
+os: osx
+compiler: 
+  - gcc
+  - clang
+
+before_install:
+  #- brew update
+  #- brew upgrade pyenv
+  #- eval "$(pyenv init -)"
+  #- pyenv install 2.7.6
+  #- pyenv global 2.7.6
+  #- pyenv rehash
+  #- pip install cpp-coveralls
+  #- pyenv rehash
+  
+script:
+    - mkdir .build
+    - cd .build
+    - cmake ..
+    - cmake --build .
+    - ctest --verbose
+
+after_success:
+  #- coveralls --root ../ --build-root ./ --gcov-options '\-lp' -E ".*gtest.*" -E ".*CMakeFiles.*" --exclude .build
+
+notifications:
+  email: false
