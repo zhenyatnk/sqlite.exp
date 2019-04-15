@@ -15,11 +15,14 @@ public:
 
 TEST_F(SqliteCppTest, Interface)
 {
+    
     SqliteCpp("db.db")
-    << "CREATE TABLE report;" << [](){}
-    << "INSERT INTO report value;" << [](){};
-    SqliteCpp("db.db").Execute(SqliteQuery() << "CREATE TABLE report;" << "INSERT INTO report value;" << "SELECT * FROM " << 1 << 2 << "sff;")<<[](){};
-    SqliteCpp("db.db") << SqliteQuery() << "CREATE TABLE report;" << "INSERT INTO report value;" << "SELECT * FROM " << 1 << 2 << "sff;" << [](){};
+    << "CREATE TABLE report;" << [](){std::cout << "1111";}
+    << "INSERT INTO report value;" << [](){std::cout << "2222";};
+    SqliteCpp("db.db").Execute(SqliteQuery() << "CREATE TABLE report;" << "INSERT INTO report value;" << "SELECT * FROM " << 1 << 2 << "sff;")<<[](){std::cout << "33333";};
+    SqliteCpp("db.db") << SqliteQuery() << "CREATE TABLE report;" << "INSERT INTO report value;" << "SELECT * FROM " << 1 << 2 << "sff;" << [](){ std::cout << "4444";};
     
     SqliteCpp("db.db") << "CREATE TABLE report;" << "INSERT INTO report value;";
+    SqliteCpp("db.db") << "CREATE TABLE report;" << "INSERT INTO report value;"<< [](){std::cout << "66666";};
+    SqliteCpp("db.db") << "CREATE TABLE report;"<< [](){std::cout << "777";} << "INSERT INTO report value;";
 }

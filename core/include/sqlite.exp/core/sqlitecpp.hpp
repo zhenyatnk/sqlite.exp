@@ -10,14 +10,6 @@
 namespace sqliteexp {
 namespace core {
   
-class Connection
-{
-    std::shared_ptr<sqlite3> m_connection;
-};
-    
-void ExecuteQuery(const Connection& connection, const std::string& query);
-   
-    
 class SqliteQuery
 {
     friend class SqliteExecuter;
@@ -62,14 +54,14 @@ public:
         if(!m_runned)
             Run();
     }
-    
-    template<class Type>
-    SqliteCpp& operator<< (const Type& object)
+
+    template<class Type, class = typename std::enable_if<!std::is_convertible<Type,std::function<void(void)>>::value>::type>
+    SqliteQueryExecuter operator<< (const Type& object)
     {
         Run();
-        m_sqliteCpp << object;
-        return m_sqliteCpp;
+        return m_sqliteCpp << object;
     }
+    
     SqliteCpp& operator<< (const std::function<void(void)>& func)
     {
         Run(func);
@@ -77,6 +69,7 @@ public:
     }
     void Run(const std::function<void(void)>& func = [](){})
     {
+        func();
         m_runned = true;
     }
     
@@ -96,6 +89,10 @@ public:
     SqliteQueryExecuter operator<< (const Type& object)
     {
         return Execute(SqliteQuery() << object);
+    }
+    SqliteQueryExecuter operator<< (const SqliteQuery& object)
+    {
+        return Execute(object);
     }
     SqliteQueryExecuter Execute(const SqliteQuery& query)
     {
