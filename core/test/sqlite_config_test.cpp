@@ -1,9 +1,9 @@
-#include <sqliteexper/core/BaseExceptions.hpp>
+#include <sqlite.exp/core/BaseExceptions.hpp>
 
 #include <gtest/gtest.h>
 #include <sqlite3.h>
 //--------------------------------------------------
-using namespace sqliteexper::core;
+using namespace sqliteexp::core;
 
 class Sqlite3ConfigTest
     :public ::testing::Test

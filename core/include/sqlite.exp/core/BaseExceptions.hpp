@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-namespace sqliteexper {
+namespace sqliteexp {
 namespace core {
 namespace exceptions_base {
 
