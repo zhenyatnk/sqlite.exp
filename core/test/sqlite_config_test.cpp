@@ -1,11 +1,11 @@
 #include <sqliteexper/core/BaseExceptions.hpp>
 
 #include <gtest/gtest.h>
-
+#include <sqlite3.h>
 //--------------------------------------------------
 using namespace sqliteexper::core;
 
-class sample_test
+class Sqlite3ConfigTest
     :public ::testing::Test
 {
 public:
@@ -13,6 +13,7 @@ public:
     {}
 };
 
-TEST_F(sample_test, fake)
+TEST_F(Sqlite3ConfigTest, Compile_ThreadSafe_Serialized)
 {
+    ASSERT_EQ(1, sqlite3_threadsafe());
 }
