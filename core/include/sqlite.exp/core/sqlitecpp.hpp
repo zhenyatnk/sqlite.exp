@@ -5,6 +5,7 @@
 #include <sqlite3.h>
 #include <memory>
 #include <sstream>
+#include <functional>
 
 namespace sqliteexp {
 namespace core {
