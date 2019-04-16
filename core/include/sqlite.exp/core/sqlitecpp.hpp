@@ -12,6 +12,7 @@
 namespace sqliteexp {
 namespace core {
 
+    //Safe and unsafe implement interface
 class SqliteRowGetter
 {
 public:
@@ -23,6 +24,7 @@ public:
     
     template <> int Get<int>(int index) const
     {
+        //sqlite3_column_count TODO
         SQLITE_CHECK_BOOL(SQLITE_INTEGER == sqlite3_column_type(m_row.get(), index)) << " index = " << index << " is type = " << sqlite3_column_type(m_row.get(), index);
         return sqlite3_column_int(m_row.get(), index);
     }
