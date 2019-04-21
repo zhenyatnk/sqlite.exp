@@ -20,33 +20,38 @@ public:
         :m_row(row)
     {}
     
-    template <class Type> Type Get(int index) const;
+    template <class Type> Type Get(int index) const
+    {
+        Type element{};
+        Get(index, element);
+        return element;
+    }
     
-    template <> int Get<int>(int index) const
+    void Get(int index, int& value) const
     {
         //sqlite3_column_count TODO
         SQLITE_CHECK_BOOL(SQLITE_INTEGER == sqlite3_column_type(m_row.get(), index)) << " index = " << index << " is type = " << sqlite3_column_type(m_row.get(), index);
-        return sqlite3_column_int(m_row.get(), index);
+        value = sqlite3_column_int(m_row.get(), index);
     }
-    template <> int64_t Get<int64_t>(int index) const
+    void Get(int index, int64_t& value) const
     {
         SQLITE_CHECK_BOOL(SQLITE_INTEGER == sqlite3_column_type(m_row.get(), index)) << " index = " << index << " is type = " << sqlite3_column_type(m_row.get(), index);
-        return sqlite3_column_int64(m_row.get(), index);
+        value = sqlite3_column_int64(m_row.get(), index);
     }
-    template <> double Get<double>(int index) const
+    void Get(int index, double& value) const
     {
         SQLITE_CHECK_BOOL(SQLITE_FLOAT == sqlite3_column_type(m_row.get(), index)) << " index = " << index << " is type = " << sqlite3_column_type(m_row.get(), index);
-        return sqlite3_column_double(m_row.get(), index);
+        value = sqlite3_column_double(m_row.get(), index);
     }
-    template <> std::string Get<std::string>(int index) const
+    void Get(int index, std::string& value) const
     {
         SQLITE_CHECK_BOOL(SQLITE_TEXT == sqlite3_column_type(m_row.get(), index)) << " index = " << index << " is type = " << sqlite3_column_type(m_row.get(), index);
-        return reinterpret_cast<const char*>(sqlite3_column_text(m_row.get(), index));
+        value = reinterpret_cast<const char*>(sqlite3_column_text(m_row.get(), index));
     }
-    template <> std::wstring Get<std::wstring>(int index) const
+    void Get(int index, std::wstring& value) const
     {
         SQLITE_CHECK_BOOL(SQLITE_TEXT == sqlite3_column_type(m_row.get(), index)) << " index = " << index << " is type = " << sqlite3_column_type(m_row.get(), index);
-        return reinterpret_cast<const wchar_t*>(sqlite3_column_text16(m_row.get(), index));
+        value = reinterpret_cast<const wchar_t*>(sqlite3_column_text16(m_row.get(), index));
     }
     
 private:
