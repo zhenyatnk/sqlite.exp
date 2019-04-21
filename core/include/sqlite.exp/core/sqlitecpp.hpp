@@ -93,6 +93,7 @@ private:
     
 public:
     using Callback = std::function<bool(const SqliteRowGetter&)>;
+    static bool EmptyCallback(const SqliteRowGetter&){ return true;};
     
 public:
     SqliteQueryExecuter(SqliteQueryExecuter&) = delete;
@@ -123,7 +124,7 @@ public:
         Run(func);
         return m_sqliteCpp;
     }
-    void Run(const Callback& func = {});
+    void Run(const Callback& func = EmptyCallback);
     
 private:
     SqliteCpp& m_sqliteCpp;
@@ -134,6 +135,7 @@ private:
 class SqliteCpp
 {
     friend class SqliteQueryExecuter;
+    
 public:
     explicit SqliteCpp(const std::string& db)
     {
@@ -141,6 +143,9 @@ public:
         SQLITE_CHECK(sqlite3_open(db.c_str(), &sqlite));
         m_connection = std::shared_ptr<sqlite3>(sqlite, [](sqlite3 *object){ if(!!object) sqlite3_close(object); });
     }
+    explicit SqliteCpp(const std::shared_ptr<sqlite3>& connection)
+    :m_connection(connection)
+    {}
     
     template<class Type>
     SqliteQueryExecuter operator<< (const Type& object)
